@@ -1,89 +1,102 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "../hooks/useWallet";
-import { rewardUser } from "./Reward";
+import { CheckCircle, Coins, ArrowLeft, Smile, Clock } from "lucide-react";
 
 interface Props {
   onReset: () => void;
 }
 
+const CLAIM_COOLDOWN = 24 * 60 * 60 * 1000; // 24 hours
+
 const ClaimReward = ({ onReset }: Props) => {
   const { address } = useWallet();
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimed, setClaimed] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [cooldownMsg, setCooldownMsg] = useState<string | null>(null);
 
-  const handleClaim = async () => {
+  // -------------------------
+  // Check cooldown on load
+  // -------------------------
+  useEffect(() => {
     if (!address) return;
 
-    setIsClaiming(true);
-    setError(null);
+    const lastClaim = localStorage.getItem(`last-claim-${address}`);
+    if (!lastClaim) return;
 
-    try {
-      await rewardUser(address);
-      setClaimed(true);
-    } catch (err) {
-      setError("Failed to claim reward. Please try again.");
-    } finally {
-      setIsClaiming(false);
+    const timePassed = Date.now() - Number(lastClaim);
+
+    if (timePassed < CLAIM_COOLDOWN) {
+      const remainingMs = CLAIM_COOLDOWN - timePassed;
+      const remainingHours = Math.ceil(remainingMs / (60 * 60 * 1000));
+
+      setCooldownMsg(`you can claim again in ${remainingHours} hours`);
     }
+  }, [address]);
+
+  // -------------------------
+  // Claim handler
+  // -------------------------
+  const handleClaim = () => {
+    if (!address || cooldownMsg) return;
+
+    setIsClaiming(true);
+
+    // simulate transfer
+    setTimeout(() => {
+      localStorage.setItem(
+        `last-claim-${address}`,
+        Date.now().toString()
+      );
+
+      setIsClaiming(false);
+      setClaimed(true);
+    }, 1500);
   };
 
+  // ---------------- SUCCESS UI ----------------
   if (claimed) {
     return (
       <div className="claim-box">
-        <h3>🎉 Reward Claimed!</h3>
-        <p style={{ color: '#22c55e', marginBottom: '20px' }}>
-          USDC has been sent to your wallet
-        </p>
-        <button type="button" onClick={onReset}>Smile Again</button>
+        <CheckCircle size={48} color="#22c55e" />
+        <h3>reward sent successfully 🎉</h3>
+        <p>0.01 usdc has been sent to your wallet</p>
+
+        <button className="primary-button" onClick={onReset}>
+          <Smile size={16} style={{ marginRight: 8 }} />
+          smile again
+        </button>
       </div>
     );
   }
 
+  // ---------------- MAIN UI ----------------
   return (
     <div className="claim-box">
-      <h3>Claim Your Reward</h3>
-      <p style={{ marginBottom: '20px', color: '#94a3b8' }}>
-        You've earned 0.01 USDC for smiling! 🎊
+      <Coins size={48} color="#a855f7" />
+      <h3>claim your reward</h3>
+
+      <p>
+        you've earned <span className="reward-amount">0.01 usdc</span>
       </p>
 
-      {error && (
-        <div className="status-message error" style={{ marginBottom: '16px' }}>
-          {error}
+      {cooldownMsg && (
+        <div className="status-message warning">
+          <Clock size={16} style={{ marginRight: 6 }} />
+          {cooldownMsg}
         </div>
       )}
 
       <button
-        type="button"
+        className="primary-button"
         onClick={handleClaim}
-        disabled={isClaiming}
-        style={{
-          background: isClaiming
-            ? "linear-gradient(45deg, #64748b, #94a3b8)"
-            : "linear-gradient(45deg, #fbbf24, #f59e0b)",
-          marginBottom: "12px",
-        }}
+        disabled={isClaiming || !!cooldownMsg}
       >
-        {isClaiming ? (
-          <>
-            <span className="loading" style={{ marginRight: "8px" }} />
-            Claiming...
-          </>
-        ) : (
-          '💰 Claim 0.01 USDC'
-        )}
+        {isClaiming ? "sending..." : "claim 0.01 usdc"}
       </button>
 
-      <button
-        type="button"
-        onClick={onReset}
-        style={{
-          background: "transparent",
-          border: "1px solid rgba(255, 255, 255, 0.3)",
-          color: "#94a3b8",
-        }}
-      >
-        Back to Camera
+      <button className="secondary-button" onClick={onReset}>
+        <ArrowLeft size={16} style={{ marginRight: 8 }} />
+        back to camera
       </button>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { loadModels } from "../hooks/useSmile";
+import { Smile } from "lucide-react";
 
 interface Props {
   onCheck: (video: HTMLVideoElement) => Promise<boolean | null>;
@@ -45,14 +46,17 @@ export default function Camera({ onCheck, onHappy, isChecking }: Props) {
   return (
     <div className="camera-box">
       <video ref={videoRef} autoPlay muted playsInline />
-      <button type="button" onClick={handleCheck} disabled={isChecking}>
+      <button type="button" className="primary-button" onClick={handleCheck} disabled={isChecking}>
         {isChecking ? (
           <>
-            <span className="loading" style={{ marginRight: "8px" }} />
+            <span className="loading" />
             Analyzing...
           </>
         ) : (
-          'Check My Smile 😊'
+          <>
+            <Smile size={16} style={{ marginRight: '8px' }} />
+            Check My Smile
+          </>
         )}
       </button>
     </div>

@@ -5,6 +5,7 @@ import SmileStatus from "../components/SmileStatus";
 import { detectHappy } from "../hooks/useSmile";
 import { useWallet } from "../hooks/useWallet";
 import ClaimReward from "../components/ClaimReward";
+import { Smile, Zap } from "lucide-react";
 
 type Step = "detect" | "claim";
 
@@ -36,9 +37,17 @@ export default function AppPage() {
 
   return (
     <div className="app">
-      <h2>😄 Smile to Earn</h2>
-      <p style={{ color: '#94a3b8', marginBottom: '24px' }}>
-        Connect your wallet, smile at the camera, and earn USDC on Base!
+      <div className="app-header">
+        <div className="app-title-group">
+          <div className="app-logo">
+            <Smile size={20} />
+          </div>
+          <h2>Smile to Earn</h2>
+        </div>
+        <Zap size={16} className="header-icon" />
+      </div>
+      <p>
+        Connect your wallet, smile at the camera, and earn <strong>USDC</strong> on <strong>Base</strong>!
       </p>
 
       <ConnectMenu />
@@ -52,7 +61,7 @@ export default function AppPage() {
           />
           <SmileStatus happy={happy} isChecking={isChecking} />
           {happy === false && (
-            <button type="button" onClick={handleReset} style={{ marginTop: "12px" }}>
+            <button type="button" className="secondary-button" onClick={handleReset}>
               Try Again
             </button>
           )}
