@@ -1,0 +1,10 @@
+{
+  "name": "smile2earn",
+  "description": "smile and earn usdc on base",
+  "icon": "https://smile2earn.xyz/icon.png",
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  }
+}
