@@ -123,7 +123,3 @@ This pattern can extend to:
 ## 📜 License
 
 MIT
-
-
-## 📂 Project Structure
-
